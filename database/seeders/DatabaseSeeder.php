@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Lead;
+use App\Models\LeadNote;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +18,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $user = User::query()->updateOrCreate([
+            'email' => 'reviewer@example.com',
+        ], [
+            'name' => 'Assessment Reviewer',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $lead = Lead::query()->updateOrCreate([
+            'name' => 'Green Earth Market',
+        ], [
+            'assigned_user_id' => $user->id,
+        ]);
+
+        Lead::query()->updateOrCreate([
+            'name' => 'Organic Wholesale Co.',
+        ], [
+            'assigned_user_id' => $user->id,
+        ]);
+
+        LeadNote::query()->firstOrCreate([
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'note' => 'Called buyer, interested in organic line.',
         ]);
     }
 }
